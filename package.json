@@ -1,0 +1,26 @@
+{
+  "name": "@aefree/pi-game-dev",
+  "version": "0.1.0",
+  "description": "Loadable no-op Pi extension carrier for game-development package configuration.",
+  "type": "module",
+  "license": "MIT",
+  "keywords": ["pi-package", "game-dev", "profile"],
+  "files": ["dist", "CHANGELOG.md", "LICENSE", "README.md"],
+  "pi": {
+    "extensions": ["./dist/pi/index.js"]
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "pack:check": "npm pack --dry-run"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "0.83.0",
+    "typescript": "^5.8.3"
+  },
+  "engines": { "node": ">=22.19.0" },
+  "repository": { "type": "git", "url": "git+https://github.com/aefreedman/pi-game-dev.git" },
+  "bugs": { "url": "https://github.com/aefreedman/pi-game-dev/issues" },
+  "homepage": "https://github.com/aefreedman/pi-game-dev#readme",
+  "publishConfig": { "access": "public" }
+}

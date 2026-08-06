@@ -1,0 +1,96 @@
+name: Publish npm package
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing GitHub release tag to publish or reconcile
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: npm-release-${{ github.repository }}-${{ github.event.release.tag_name || inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Trusted npm publication
+    if: github.event_name == 'workflow_dispatch' || github.event.release.prerelease == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
+
+    steps:
+      - name: Check out release tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          ref: ${{ env.RELEASE_TAG }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      - name: Install npm with trusted publishing support
+        run: npm install --global "npm@^11.5.1"
+
+      - name: Verify release identity and reconcile npm state
+        id: identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          package_name="$(node -p "require('./package.json').name")"
+          package_version="$(node -p "require('./package.json').version")"
+          expected_tag="v${package_version}"
+          expected_git_head="$(git rev-parse HEAD)"
+          test "${RELEASE_TAG}" = "${expected_tag}"
+          test "$(git rev-list -n 1 "${RELEASE_TAG}")" = "${expected_git_head}"
+          grep -F "## [${package_version}]" CHANGELOG.md
+
+          metadata_file="$(mktemp)"
+          error_file="$(mktemp)"
+          if npm view "${package_name}@${package_version}" version gitHead --json >"${metadata_file}" 2>"${error_file}"; then
+            observed_version="$(node -e "const d=JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')); process.stdout.write(String(d.version))" "${metadata_file}")"
+            observed_git_head="$(node -e "const d=JSON.parse(require('fs').readFileSync(process.argv[1], 'utf8')); process.stdout.write(String(d.gitHead))" "${metadata_file}")"
+            rm -f "${metadata_file}" "${error_file}"
+            test "${observed_version}" = "${package_version}"
+            test "${observed_git_head}" = "${expected_git_head}"
+            echo "publish_required=false" >> "${GITHUB_OUTPUT}"
+          else
+            rm -f "${metadata_file}"
+            grep -q "E404" "${error_file}"
+            rm -f "${error_file}"
+            echo "publish_required=true" >> "${GITHUB_OUTPUT}"
+          fi
+
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Test and validate package
+        run: |
+          npm test
+          npm pack --dry-run
+
+      - name: Publish with provenance through npm trusted publishing
+        if: steps.identity.outputs.publish_required == 'true'
+        run: npm publish --access public --provenance
+
+      - name: Verify npm release identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          package_name="$(node -p "require('./package.json').name")"
+          package_version="$(node -p "require('./package.json').version")"
+          test "$(npm view "${package_name}@${package_version}" gitHead)" = "$(git rev-parse HEAD)"
