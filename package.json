@@ -1,6 +1,6 @@
 {
   "name": "@aefree/pi-game-dev",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Loadable no-op Pi extension carrier for game-development package configuration.",
   "type": "module",
   "license": "MIT",

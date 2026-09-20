@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## [0.1.1] - 2026-09-20
+
 ### Changed
 
 - Validate the extension carrier against Pi 0.86.1.
