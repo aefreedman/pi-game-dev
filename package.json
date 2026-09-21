@@ -1,6 +1,6 @@
 {
   "name": "@aefree/pi-game-dev",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Loadable no-op Pi extension carrier for game-development package configuration.",
   "type": "module",
   "license": "MIT",
@@ -15,7 +15,7 @@
     "pack:check": "npm pack --dry-run"
   },
   "devDependencies": {
-    "@earendil-works/pi-coding-agent": "0.86.1",
+    "@earendil-works/pi-coding-agent": "0.87.0",
     "typescript": "^5.8.3"
   },
   "engines": { "node": ">=22.19.0" },
