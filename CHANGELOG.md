@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Pin TypeScript 7.0.2.
+
 - Align development and deterministic validation with Pi 0.99.1.
 
 ## [0.1.2] - 2026-09-21
