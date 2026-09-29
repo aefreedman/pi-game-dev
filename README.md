@@ -7,7 +7,7 @@
 Requirements:
 
 - Node.js 22.19 or newer
-- Pi 0.83 or newer
+- Latest stable Pi (validated with 0.99.1); older Pi versions are not supported
 
 ```bash
 pi install npm:@aefree/pi-game-dev

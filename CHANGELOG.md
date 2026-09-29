@@ -1,10 +1,12 @@
 # Changelog
 
-## Unreleased
+## [0.1.3] - 2026-09-29
+
+### Changed
 
 - Pin TypeScript 7.0.2.
-
 - Align development and deterministic validation with Pi 0.99.1.
+- Document latest-stable-only Pi support; the carrier remains a no-op.
 
 ## [0.1.2] - 2026-09-21
 
