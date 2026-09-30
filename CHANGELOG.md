@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Remove the post-publish npm visibility gate while retaining exact source checks and fail-closed pre-publish reconciliation.
+
 ## [0.1.3] - 2026-09-29
 
 ### Changed
